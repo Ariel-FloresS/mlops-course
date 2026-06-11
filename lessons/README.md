@@ -7,7 +7,8 @@ Lessons are generated incrementally — see the roadmap in the root README for s
 - [`01-churn-ci-cd/`](01-churn-ci-cd/README.md) — churn training pipeline + local FastAPI deployment + GitHub Actions CI with a metric gate.
 - [`02-monitoring/`](02-monitoring/README.md) — structured logging, service + model metrics, dashboard report, threshold alerts, scheduled monitoring workflow.
 - [`03-drift-detection/`](03-drift-detection/README.md) — PSI from scratch, reference profiles, drift gate, and the drift → `repository_dispatch` → retraining chain (pipeline form 4).
+- [`04-docker-lambda/`](04-docker-lambda/README.md) — Lambda container image with the model baked in, RIE local validation, OIDC credentials, and the Docker → ECR → Lambda → API Gateway deploy pipeline.
 
-Next to land here: `04-docker-lambda/`.
+Next to land here: `05-deployment-strategies/`.
 
 Run `pytest` from inside a lesson folder (each lesson ships its own `pytest.ini`); lessons are independent and their `src/` packages are not importable across lessons.

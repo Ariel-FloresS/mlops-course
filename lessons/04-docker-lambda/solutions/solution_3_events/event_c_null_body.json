@@ -1,0 +1,13 @@
+{
+  "version": "2.0",
+  "routeKey": "POST /predict",
+  "rawPath": "/predict",
+  "requestContext": {
+    "http": {
+      "method": "POST",
+      "path": "/predict"
+    }
+  },
+  "isBase64Encoded": false,
+  "body": null
+}

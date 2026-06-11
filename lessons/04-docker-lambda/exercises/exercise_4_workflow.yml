@@ -1,0 +1,56 @@
+name: 04-deploy-lambda
+
+# TODO (triggers): push to main + pull requests (both with paths: filters
+#   for this lesson, shared/, dependency files, this workflow) + manual
+on:
+
+defaults:
+  run:
+    working-directory: lessons/04-docker-lambda
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync
+      - run: uv run pytest -q
+
+  build-and-smoke-test:
+    # TODO: run only after `test` succeeds
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync
+      # TODO: train the model (the build copies artifacts/ into the image)
+      # TODO: docker build the image, tagged churn-lambda:${{ github.sha }}
+      # TODO: in one run step: start the container detached with the RIE
+      #       port published (-p 9000:8080), sleep a few seconds, curl the
+      #       invoke endpoint with events/predict_high_risk.json, assert the
+      #       response contains "statusCode": 200 AND the exact probability
+      #       0.9966 (grep -F), then stop the container
+
+  deploy:
+    # TODO: run only after build-and-smoke-test, ONLY on main, and ONLY
+    #       when vars.AWS_DEPLOY_ROLE_ARN is set (so the pipeline stays
+    #       green before AWS exists)
+    runs-on: ubuntu-latest
+    # TODO: grant the OIDC permissions this job needs:
+    #       id-token: write (to mint the GitHub OIDC token)
+    #       contents: read  (checkout)
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync
+      # TODO: train + docker build (same image as the smoke-tested one)
+      # TODO: assume the AWS role with aws-actions/configure-aws-credentials@v4
+      #       (role-to-assume + aws-region from repo variables — no secrets)
+      # TODO: log in to ECR with aws-actions/amazon-ecr-login@v2 (give it an id)
+      # TODO: tag and push the image to
+      #       <registry>/<ECR_REPOSITORY>:${{ github.sha }}
+      # TODO: aws lambda update-function-code with that image uri, then
+      #       aws lambda wait function-updated
+      # TODO: if vars.API_GATEWAY_URL is set: POST the high-risk request to
+      #       $API_GATEWAY_URL/predict and assert the exact probability

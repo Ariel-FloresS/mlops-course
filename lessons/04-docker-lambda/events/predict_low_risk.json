@@ -1,0 +1,13 @@
+{
+  "version": "2.0",
+  "routeKey": "POST /predict",
+  "rawPath": "/predict",
+  "requestContext": {
+    "http": {
+      "method": "POST",
+      "path": "/predict"
+    }
+  },
+  "isBase64Encoded": false,
+  "body": "{\"tenure_months\": 60, \"monthly_charges\": 40.0, \"total_charges\": 2400.0, \"contract_type\": \"two_year\", \"payment_method\": \"credit_card\", \"support_tickets\": 0}"
+}

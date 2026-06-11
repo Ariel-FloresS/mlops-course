@@ -1,0 +1,85 @@
+name: 04-deploy-lambda
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "lessons/04-docker-lambda/**"
+      - "shared/**"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/workflows/04-deploy-lambda.yml"
+  pull_request:
+    paths:
+      - "lessons/04-docker-lambda/**"
+      - "shared/**"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/workflows/04-deploy-lambda.yml"
+  workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: lessons/04-docker-lambda
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync
+      - run: uv run pytest -q
+
+  build-and-smoke-test:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync
+      - run: uv run python -m src.pipeline.train_pipeline
+      - run: docker build -t churn-lambda:${{ github.sha }} .
+      - run: |
+          docker run --rm -d -p 9000:8080 --name churn-lambda-rie churn-lambda:${{ github.sha }}
+          sleep 5
+          response=$(curl -fsS -X POST "http://localhost:9000/2015-03-31/functions/function/invocations" -d @events/predict_high_risk.json)
+          echo "$response"
+          echo "$response" | grep -F '"statusCode": 200'
+          echo "$response" | grep -F '\"churn_probability\": 0.9966'
+          docker stop churn-lambda-rie
+
+  deploy:
+    needs: build-and-smoke-test
+    if: github.ref == 'refs/heads/main' && vars.AWS_DEPLOY_ROLE_ARN != ''
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync
+      - run: uv run python -m src.pipeline.train_pipeline
+      - run: docker build -t churn-lambda:${{ github.sha }} .
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+      - uses: aws-actions/amazon-ecr-login@v2
+        id: ecr-login
+      - run: |
+          docker tag churn-lambda:${{ github.sha }} ${{ steps.ecr-login.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:${{ github.sha }}
+          docker push ${{ steps.ecr-login.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:${{ github.sha }}
+      - run: |
+          aws lambda update-function-code \
+            --function-name ${{ vars.LAMBDA_FUNCTION_NAME }} \
+            --image-uri ${{ steps.ecr-login.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:${{ github.sha }}
+          aws lambda wait function-updated --function-name ${{ vars.LAMBDA_FUNCTION_NAME }}
+      - if: vars.API_GATEWAY_URL != ''
+        run: |
+          response=$(curl -fsS -X POST "${{ vars.API_GATEWAY_URL }}/predict" \
+            -H "Content-Type: application/json" \
+            -d '{"tenure_months": 2, "monthly_charges": 95.0, "total_charges": 190.0, "contract_type": "month_to_month", "payment_method": "electronic_check", "support_tickets": 4}')
+          echo "$response"
+          echo "$response" | grep -F '"churn_probability": 0.9966'

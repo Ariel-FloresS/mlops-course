@@ -1,0 +1,6 @@
+--- event_a_base64_low_risk.json ---
+{"statusCode": 200, "headers": {"Content-Type": "application/json"}, "body": "{\"churn_probability\": 0.0029, \"churn_label\": 0}"}
+--- event_b_missing_field.json ---
+{"statusCode": 422, "headers": {"Content-Type": "application/json"}, "body": "{\"detail\": [{\"type\": \"missing\", \"loc\": [\"support_tickets\"], \"msg\": \"Field required\", \"input\": {\"tenure_months\": 2, \"monthly_charges\": 95.0, \"total_charges\": 190.0, \"contract_type\": \"month_to_month\", \"payment_method\": \"electronic_check\"}}]}"}
+--- event_c_null_body.json ---
+{"statusCode": 400, "headers": {"Content-Type": "application/json"}, "body": "{\"error\": \"event has no body\"}"}
