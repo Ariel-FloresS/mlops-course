@@ -7,5 +7,7 @@ __pycache__/
 dist/
 build/
 artifacts/
+logs/
+reports/
 mlruns/
 .DS_Store

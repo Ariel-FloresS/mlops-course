@@ -1,0 +1,45 @@
+name: 02-monitoring
+
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  pull_request:
+    paths:
+      - "lessons/02-monitoring/**"
+      - "shared/**"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/workflows/02-monitoring.yml"
+  workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: lessons/02-monitoring
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync
+      - run: uv run pytest -q
+
+  monitor:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync
+      - run: uv run python -m src.pipeline.train_pipeline
+      - run: |
+          uv run python -m src.serving.run_server &
+          curl --fail --silent --retry 15 --retry-delay 1 --retry-all-errors http://127.0.0.1:8000/health
+          uv run python -m src.monitoring.traffic_replay
+      - run: uv run python -m src.pipeline.monitoring_pipeline
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: monitoring-report
+          path: lessons/02-monitoring/reports/

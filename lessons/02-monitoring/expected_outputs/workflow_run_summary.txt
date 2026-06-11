@@ -1,0 +1,40 @@
+WORKFLOW RUN — 02-monitoring
+(Actions tab: daily at 06:00 UTC on main, on pull requests touching this
+lesson, or via the manual "Run workflow" button)
+
+Run graph, left to right:
+
+  test ──► monitor
+
+Job: test — green
+  uv run pytest -q ends with: 16 passed
+
+Job: monitor — green
+  step "train":  log ends with
+    metric gate passed: roc_auc >= 0.85
+    artifacts written to artifacts/
+  step "serve + replay traffic":
+    {"status":"ok"}
+    sent 200 requests: 192 accepted, 8 rejected
+  step "monitoring pipeline":
+    read 201 request records and 192 prediction records
+    service metrics: {'request_count': 201, 'error_count': 8, 'error_rate': 0.0398, ...}
+    model metrics: {'prediction_count': 192, 'positive_rate': ..., 'mean_probability': ..., ...}
+    reports written to reports/
+    all monitoring alerts passed
+  step "Upload artifact": monitoring-report
+
+Artifacts section (bottom of the run page):
+  monitoring-report — 2 files inside: monitoring_report.txt, monitoring_report.html
+
+Counts are exact (201 / 192 / 8) unless the health curl needed retries,
+which can add a request record or two. Latency percentiles and the
+model-metric decimals vary per run on live logs — that is expected; the
+byte-exact validation path is the canonical logs (walkthrough step 6).
+
+FAILURE MODE TO RECOGNIZE
+If an alert fires, the "monitoring pipeline" step turns red with
+  ValueError: monitoring alerts fired: [...]
+in its log — but the monitoring-report artifact is STILL uploaded
+(if: always()), because the report that explains a failure is most
+valuable exactly when there is one.
