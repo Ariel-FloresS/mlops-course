@@ -1,0 +1,11 @@
+loaded 2000 rows from data/churn.csv
+split into 1600 train rows and 400 test rows
+training complete
+test metrics: {'accuracy': 0.875, 'precision': 0.8407, 'recall': 0.748, 'roc_auc': 0.9222}
+Traceback (most recent call last):
+  File "<string>", line 5, in <module>
+  File "/home/user/mlops-course/lessons/01-churn-ci-cd/src/pipeline/train_pipeline.py", line 46, in run_training_pipeline
+    enforce_metric_gate(metrics, config.gate_metric_name, config.gate_minimum_value)
+  File "/home/user/mlops-course/lessons/01-churn-ci-cd/src/model/metric_gate.py", line 10, in enforce_metric_gate
+    raise ValueError(
+ValueError: metric gate failed: roc_auc=0.9222 is below minimum 0.99

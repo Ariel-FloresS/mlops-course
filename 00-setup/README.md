@@ -117,7 +117,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
       - run: uv sync
-      - run: uv run python -m lessons.01.train
+      - run: uv run python -m src.pipeline.train_pipeline
       - uses: actions/upload-artifact@v4
         with:
           name: churn-model
@@ -253,16 +253,16 @@ If already installed, the command exits silently — that is also a pass.
 uv sync
 ```
 
-Expected output (shape):
+Expected output (shape; package counts grow as lessons add dependencies):
 
 ```
-Using CPython 3.12.11
+Using CPython 3.12.3 interpreter at: /usr/bin/python3.12
 Creating virtual environment at: .venv
-Resolved 1 package in 12ms
-Audited in 0.01ms
+Resolved 33 packages in 4ms
+Installed 30 packages in 36ms
 ```
 
-`Resolved 1 package` is correct: the only "package" is the course project itself, because no lesson has added dependencies yet. This command also writes `uv.lock` — commit it when it appears; it is what makes every learner's environment identical.
+The exact versions installed come from the committed `uv.lock` — that file is what makes every learner's environment identical, which in turn is what makes the expected outputs of later lessons exact instead of approximate.
 
 ### Step 4 — sanity check
 
@@ -298,7 +298,7 @@ Expected output:
 |---|---|---|
 | `uv --version` | `uv 0.x.y` | any version prints |
 | `uv python install` | `Installed Python 3.12.x ...` or silence | exit code 0 |
-| `uv sync` | `Creating virtual environment at: .venv` + `Resolved 1 package` | `.venv/` and `uv.lock` exist afterwards |
+| `uv sync` | `Creating virtual environment at: .venv` + `Resolved N packages` | `.venv/` exists afterwards |
 | `uv run python -c "import sys; print(sys.version_info[:2])"` | `(3, 12)` | exact match |
 
 ---

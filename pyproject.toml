@@ -3,4 +3,14 @@ name = "mlops-course"
 version = "0.1.0"
 description = "Hands-on MLOps course: from a churn model CI/CD pipeline to a mini-LLM from scratch"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "fastapi>=0.115",
+    "httpx2>=2.3.0",
+    "joblib>=1.4",
+    "numpy>=2.1",
+    "pandas>=2.2",
+    "pydantic>=2.9",
+    "pytest>=8.3",
+    "scikit-learn>=1.5",
+    "uvicorn>=0.32",
+]

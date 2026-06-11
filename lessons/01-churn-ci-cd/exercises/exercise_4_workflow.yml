@@ -1,0 +1,42 @@
+name: 01-churn-ci
+
+# TODO (triggers): run this workflow on
+#   1) pushes to main, and 2) pull requests — both restricted with `paths:`
+#      filters to the files this lesson actually depends on
+#   3) manual runs (workflow_dispatch)
+on:
+
+defaults:
+  run:
+    working-directory: lessons/01-churn-ci-cd
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      # TODO: install the environment, then run the test suite quietly
+
+  train:
+    # TODO: make this job start only after `test` succeeds
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync
+      # TODO: run the training pipeline module (the metric gate lives inside it)
+      # TODO: upload everything under lessons/01-churn-ci-cd/artifacts/
+      #       as an artifact named churn-model
+
+  smoke-test:
+    # TODO: make this job start only after `train` succeeds
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync
+      # TODO: download the churn-model artifact into lessons/01-churn-ci-cd/artifacts/
+      # TODO: in one run step: start the server in the background,
+      #       curl /health with retries until it answers,
+      #       then POST one /predict request — any failed call must fail the job

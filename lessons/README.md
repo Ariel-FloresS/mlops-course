@@ -4,4 +4,6 @@ One self-contained folder per lesson, named `NN-short-name`, each following the 
 
 Lessons are generated incrementally — see the roadmap in the root README for status.
 
-Next to land here: `01-churn-ci-cd/`.
+- [`01-churn-ci-cd/`](01-churn-ci-cd/README.md) — churn training pipeline + local FastAPI deployment + GitHub Actions CI with a metric gate.
+
+Next to land here: `02-monitoring/`.
