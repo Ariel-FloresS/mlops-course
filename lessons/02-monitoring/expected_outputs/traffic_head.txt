@@ -1,0 +1,4 @@
+tenure_months,monthly_charges,total_charges,contract_type,payment_method,support_tickets
+69,116.71,8052.99,one_year,bank_transfer,3
+46,85.78,3945.88,month_to_month,electronic_check,1
+50,62.82,3141.0,one_year,electronic_check,2

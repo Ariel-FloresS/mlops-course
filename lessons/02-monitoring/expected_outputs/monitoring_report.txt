@@ -1,0 +1,29 @@
+CHURN SERVICE MONITORING REPORT
+===============================
+
+SERVICE METRICS (source: requests log)
+  request_count      201
+  error_count        8
+  error_rate         0.0398
+  latency_ms_p50     4.71
+  latency_ms_p95     6.8
+  latency_ms_p99     7.66
+
+MODEL METRICS (source: predictions log)
+  prediction_count   192
+  positive_rate      0.2396
+  mean_probability   0.2828
+  min_probability    0.0011
+  max_probability    0.9929
+
+PREDICTION PROBABILITY DISTRIBUTION
+  0.0-0.1 | ######################################## 81
+  0.1-0.2 | ############### 30
+  0.2-0.3 | ######## 16
+  0.3-0.4 | ##### 10
+  0.4-0.5 | #### 9
+  0.5-0.6 | #### 8
+  0.6-0.7 | ##### 10
+  0.7-0.8 | ## 4
+  0.8-0.9 | ##### 11
+  0.9-1.0 | ###### 13

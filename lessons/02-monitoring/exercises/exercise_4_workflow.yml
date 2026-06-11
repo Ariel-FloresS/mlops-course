@@ -1,0 +1,38 @@
+name: 02-monitoring
+
+# TODO (triggers): run this workflow
+#   1) every day at 06:00 UTC (cron)
+#   2) on pull requests touching this lesson, shared/, the dependency
+#      files, or this workflow file
+#   3) manually (workflow_dispatch)
+on:
+
+defaults:
+  run:
+    working-directory: lessons/02-monitoring
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync
+      - run: uv run pytest -q
+
+  monitor:
+    # TODO: make this job start only after `test` succeeds
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync
+      # TODO: train the model (the serving process needs an artifact to load)
+      # TODO: in one run step: start the server in the background,
+      #       curl /health with retries until the model is loaded,
+      #       then replay the canonical traffic with the traffic_replay module
+      # TODO: run the monitoring pipeline module
+      #       (it writes the reports, then enforces the alerts)
+      # TODO: upload lessons/02-monitoring/reports/ as artifact
+      #       "monitoring-report" — even when a previous step failed
+      #       (hint: if: always())
