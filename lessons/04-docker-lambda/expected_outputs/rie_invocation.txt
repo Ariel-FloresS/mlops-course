@@ -1,0 +1,35 @@
+TERMINAL 1 — run the image with the Lambda Runtime Interface Emulator
+(the RIE ships inside the AWS base image; it listens on 8080)
+
+$ docker run --rm -p 9000:8080 churn-lambda:local
+<timestamp> [INFO] (rapid) exec '/var/runtime/bootstrap' (cwd=/var/task, handler=)
+
+(after the first invocation arrives, two more lines appear:)
+<timestamp> [INFO] (rapid) INIT START(type: on-demand, phase: init)
+<timestamp> [INFO] (rapid) INVOKE START(requestId: <uuid>)
+
+
+TERMINAL 2 — invoke through the RIE endpoint
+(the path is the Lambda Invoke API path; the event file is the payload)
+
+$ curl -fsS -X POST "http://localhost:9000/2015-03-31/functions/function/invocations" \
+    -d @events/predict_high_risk.json
+{"statusCode": 200, "headers": {"Content-Type": "application/json"}, "body": "{\"churn_probability\": 0.9966, \"churn_label\": 1}"}
+
+$ curl -fsS -X POST "http://localhost:9000/2015-03-31/functions/function/invocations" \
+    -d @events/predict_low_risk.json
+{"statusCode": 200, "headers": {"Content-Type": "application/json"}, "body": "{\"churn_probability\": 0.0029, \"churn_label\": 0}"}
+
+$ curl -fsS -X POST "http://localhost:9000/2015-03-31/functions/function/invocations" \
+    -d @events/predict_invalid_contract.json
+{"statusCode": 422, "headers": {"Content-Type": "application/json"}, "body": "{\"detail\": [{\"type\": \"literal_error\", \"loc\": [\"contract_type\"], \"msg\": \"Input should be 'month_to_month', 'one_year' or 'two_year'\", \"input\": \"weekly\", \"ctx\": {\"expected\": \"'month_to_month', 'one_year' or 'two_year'\"}}]}"}
+
+WHAT IS EXACT vs WHAT VARIES:
+- the three response JSON bodies are EXACT: the model baked into the
+  image is deterministic, and they are byte-identical to
+  expected_outputs/handler_responses.txt (same handler, same artifact —
+  the container only changes the transport).
+- RIE log lines, timestamps, request ids and the first-invocation
+  latency (cold start: sklearn import + model load) vary.
+- note the first curl takes noticeably longer than the rest — that IS
+  the cold start you will meet again in real Lambda.

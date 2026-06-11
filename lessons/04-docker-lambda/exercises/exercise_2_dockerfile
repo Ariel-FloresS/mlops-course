@@ -1,0 +1,14 @@
+# TODO: start from the AWS Lambda Python 3.12 public base image
+FROM
+
+# TODO: copy requirements-lambda.txt into ${LAMBDA_TASK_ROOT} and
+#       pip install it with --no-cache-dir
+# NOTE: dependencies are copied and installed BEFORE the code on purpose —
+#       answer for yourself why, then check expected_outputs/docker_build_log.txt
+
+# TODO: copy src/ into ${LAMBDA_TASK_ROOT}/src/
+
+# TODO: copy artifacts/ into ${LAMBDA_TASK_ROOT}/artifacts/
+#       (the model is baked into the image: the image IS the artifact)
+
+# TODO: set CMD to the handler's dotted path: module path + function name

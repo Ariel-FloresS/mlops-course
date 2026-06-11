@@ -1,0 +1,39 @@
+WORKFLOW RUN — 04-deploy-lambda
+(Actions tab: push to main / pull request touching this lesson / manual)
+
+Run graph, left to right:
+
+  test ──► build-and-smoke-test ──► deploy
+
+Job: test — green
+  uv run pytest -q ends with: 7 passed
+
+Job: build-and-smoke-test — green
+  step "train":  metric gate passed: roc_auc >= 0.85
+  step "docker build": the 5 build steps from
+    expected_outputs/docker_build_log.txt, real this time —
+    GitHub runners pull public.ecr.aws without restrictions
+  step "RIE smoke test" prints the exact high-risk response:
+    {"statusCode": 200, "headers": {"Content-Type": "application/json"}, "body": "{\"churn_probability\": 0.9966, \"churn_label\": 1}"}
+    and both grep assertions pass silently
+
+Job: deploy — TWO possible states, both expected:
+  - SKIPPED (grey): you are on a pull request, or
+    vars.AWS_DEPLOY_ROLE_ARN is not configured yet.
+    The pipeline is green without an AWS account — by design.
+  - GREEN (after merging to main with the variables set):
+    "Assume role with OIDC" shows the role session created
+      from the GitHub token — no access keys anywhere
+    docker push ends with: <sha>: digest: sha256:<digest>
+    update-function-code + wait function-updated complete
+    remote smoke test prints: {"churn_probability": 0.9966, "churn_label": 1}
+    (body only — API Gateway consumed the statusCode/headers envelope)
+
+FAILURE MODES TO RECOGNIZE
+- RIE smoke test red with grep finding nothing: the image built but the
+  handler errored — docker logs in the step output tell you why
+  (most common: artifacts/ missing because training was skipped).
+- deploy red at "Assume role": the OIDC trust policy sub condition does
+  not match your repo/ref — re-read docs/aws_setup.md step 3.
+- deploy red at update-function-code: the deploy role's permissions
+  policy does not cover the function ARN — step 3 again.

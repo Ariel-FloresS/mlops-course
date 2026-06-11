@@ -1,0 +1,30 @@
+$ docker build -t churn-lambda:local .
+
+[+] Building 96.4s (11/11) FINISHED                                 docker:default
+ => [internal] load build definition from Dockerfile
+ => [internal] load metadata for public.ecr.aws/lambda/python:3.12
+ => [internal] load .dockerignore
+ => [1/5] FROM public.ecr.aws/lambda/python:3.12@sha256:<digest>
+ => [internal] load build context
+ => [2/5] COPY requirements-lambda.txt /var/task/requirements-lambda.txt
+ => [3/5] RUN pip install --no-cache-dir -r /var/task/requirements-lambda.txt
+ => [4/5] COPY src/ /var/task/src/
+ => [5/5] COPY artifacts/ /var/task/artifacts/
+ => exporting to image
+ => => naming to docker.io/library/churn-lambda:local
+
+$ docker images churn-lambda
+REPOSITORY     TAG     IMAGE ID       CREATED          SIZE
+churn-lambda   local   <12-hex-id>    10 seconds ago   ~1.4GB
+
+SHAPE REFERENCE — what to validate:
+- step ORDER and NAMES are exact (5 numbered steps in this sequence);
+  durations, digests, image id and cache markers vary per machine/run.
+- pip inside step [3/5] installs exactly the 5 pinned packages from
+  requirements-lambda.txt (plus their transitive dependencies).
+- image size lands in the 1.2-1.6 GB range: pandas + scikit-learn
+  dominate; the model itself is a few KB.
+- a REBUILD without changing requirements-lambda.txt must show
+  steps [2/5] and [3/5] as CACHED — only src/ and artifacts/ re-copy.
+  That layer-cache behavior is the reason dependencies are copied
+  and installed BEFORE the code.

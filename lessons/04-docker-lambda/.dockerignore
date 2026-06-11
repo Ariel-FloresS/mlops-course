@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+tests/
+exercises/
+solutions/
+expected_outputs/
+events/
+docs/
+data/
+logs/
+reports/

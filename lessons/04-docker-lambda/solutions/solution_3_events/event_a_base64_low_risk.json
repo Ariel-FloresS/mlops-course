@@ -1,0 +1,13 @@
+{
+  "version": "2.0",
+  "routeKey": "POST /predict",
+  "rawPath": "/predict",
+  "requestContext": {
+    "http": {
+      "method": "POST",
+      "path": "/predict"
+    }
+  },
+  "isBase64Encoded": true,
+  "body": "eyJ0ZW51cmVfbW9udGhzIjogNjAsICJtb250aGx5X2NoYXJnZXMiOiA0MC4wLCAidG90YWxfY2hhcmdlcyI6IDI0MDAuMCwgImNvbnRyYWN0X3R5cGUiOiAidHdvX3llYXIiLCAicGF5bWVudF9tZXRob2QiOiAiY3JlZGl0X2NhcmQiLCAic3VwcG9ydF90aWNrZXRzIjogMH0="
+}
