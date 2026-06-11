@@ -1,0 +1,62 @@
+name: 03-drift-detection
+
+on:
+  schedule:
+    - cron: "0 7 * * *"
+  pull_request:
+    paths:
+      - "lessons/03-drift-detection/**"
+      - "shared/**"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/workflows/03-drift-detection.yml"
+  workflow_dispatch:
+    inputs:
+      traffic_profile:
+        description: traffic to replay against the model
+        type: choice
+        options: [drifted, baseline]
+        default: drifted
+
+defaults:
+  run:
+    working-directory: lessons/03-drift-detection
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync
+      - run: uv run pytest -q
+
+  drift-check:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync
+      - run: uv run python -m src.pipeline.train_pipeline
+      - run: |
+          uv run python -m src.serving.run_server &
+          curl --fail --silent --retry 15 --retry-delay 1 --retry-all-errors http://127.0.0.1:8000/health
+          uv run python -m src.monitoring.traffic_replay data/traffic_${{ inputs.traffic_profile || 'drifted' }}.csv
+      - id: drift-check
+        continue-on-error: true
+        run: uv run python -m src.pipeline.drift_pipeline
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: drift-report
+          path: lessons/03-drift-detection/reports/
+      - if: steps.drift-check.outcome == 'failure'
+        run: |
+          curl --fail --silent -X POST \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/${{ github.repository }}/dispatches \
+            -d '{"event_type": "drift-detected", "client_payload": {"source_run_id": "${{ github.run_id }}"}}'

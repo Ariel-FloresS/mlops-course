@@ -1,0 +1,42 @@
+name: 03-drift-detection
+
+# TODO (triggers): daily cron at 07:00 UTC + pull requests touching this
+#   lesson / shared / dependency files / this file + workflow_dispatch with
+#   a choice input `traffic_profile` (options drifted|baseline, default drifted)
+on:
+
+defaults:
+  run:
+    working-directory: lessons/03-drift-detection
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync
+      - run: uv run pytest -q
+
+  drift-check:
+    # TODO: run only after `test` succeeds
+    runs-on: ubuntu-latest
+    # TODO: grant this job permission to create repository_dispatch events
+    #       (permissions: contents: write)
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync
+      # TODO: train the model
+      # TODO: in one run step: start the server in the background, curl
+      #       /health with retries, then replay
+      #       data/traffic_${{ inputs.traffic_profile || 'drifted' }}.csv
+      # TODO: run the drift pipeline as a step with id: drift-check and
+      #       continue-on-error: true  (capture the gate's exit code instead
+      #       of failing the job — the failure becomes a signal)
+      # TODO: upload lessons/03-drift-detection/reports/ as artifact
+      #       "drift-report", even when previous steps failed
+      # TODO: if the drift-check step's outcome was 'failure', POST a
+      #       repository_dispatch event with event_type "drift-detected"
+      #       to https://api.github.com/repos/${{ github.repository }}/dispatches
+      #       authenticated with ${{ secrets.GITHUB_TOKEN }}

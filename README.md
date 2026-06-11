@@ -83,8 +83,8 @@ Lessons are generated incrementally, one at a time. Status legend: ✅ available
 | 00 | [Setup & the ML CI/CD pipeline landscape](00-setup/README.md) | uv environment + a mental map of every way ML pipelines get built | ✅ |
 | 01 | [Churn CI/CD: training + local deployment](lessons/01-churn-ci-cd/README.md) | layered training pipeline, FastAPI local serving, first GitHub Actions workflow with a metric quality gate | ✅ |
 | 02 | [Monitoring](lessons/02-monitoring/README.md) | service metrics + model metrics, structured logging, dashboard, scheduled monitoring workflow | ✅ |
-| 03 | Drift detection | data drift / concept drift detectors + automated retraining triggers | 🔜 |
-| 04 | Containerization + AWS Lambda | Docker → ECR → Lambda → API Gateway deployment pipeline | 🔒 |
+| 03 | [Drift detection](lessons/03-drift-detection/README.md) | PSI from scratch, reference profiles, drift gate, `repository_dispatch` retraining trigger | ✅ |
+| 04 | Containerization + AWS Lambda | Docker → ECR → Lambda → API Gateway deployment pipeline | 🔜 |
 | 05 | Deployment strategies | blue-green, canary, and shadow patterns wired into the pipeline | 🔒 |
 | 06 | MLflow | model registry, versioning, reproducibility | 🔒 |
 | 07 | Embeddings from scratch | what embeddings are, training a simple one, validating it | 🔒 |

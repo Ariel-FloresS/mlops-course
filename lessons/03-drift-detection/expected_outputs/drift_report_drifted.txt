@@ -1,0 +1,16 @@
+DATA DRIFT REPORT
+=================
+
+reference rows:   2000
+current records:  192
+psi threshold:    0.2
+
+  feature              psi        status
+  tenure_months        4.8451     DRIFT
+  monthly_charges      3.1281     DRIFT
+  total_charges        2.2862     DRIFT
+  support_tickets      0.8683     DRIFT
+  contract_type        0.3224     DRIFT
+  payment_method       0.3416     DRIFT
+
+drifted features: 6 of 6
