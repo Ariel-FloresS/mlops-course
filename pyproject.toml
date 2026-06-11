@@ -1,0 +1,6 @@
+[project]
+name = "mlops-course"
+version = "0.1.0"
+description = "Hands-on MLOps course: from a churn model CI/CD pipeline to a mini-LLM from scratch"
+requires-python = ">=3.12"
+dependencies = []
