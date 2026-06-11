@@ -1,0 +1,14 @@
+built reference profiles from data/churn.csv (2000 rows)
+read 192 current records from expected_outputs/predictions_log_drifted.jsonl
+psi by feature: {'tenure_months': 4.8451, 'monthly_charges': 3.1281, 'total_charges': 2.2862, 'support_tickets': 0.8683, 'contract_type': 0.3224, 'payment_method': 0.3416}
+report written to reports/drift_report.txt
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/home/user/mlops-course/lessons/03-drift-detection/src/pipeline/drift_pipeline.py", line 65, in <module>
+    run_drift_pipeline(
+  File "/home/user/mlops-course/lessons/03-drift-detection/src/pipeline/drift_pipeline.py", line 56, in run_drift_pipeline
+    enforce_drift_gate(psi_by_feature, config.maximum_psi)
+  File "/home/user/mlops-course/lessons/03-drift-detection/src/drift/drift_gate.py", line 10, in enforce_drift_gate
+    raise ValueError(
+ValueError: data drift detected: {'tenure_months': 4.8451, 'monthly_charges': 3.1281, 'total_charges': 2.2862, 'support_tickets': 0.8683, 'contract_type': 0.3224, 'payment_method': 0.3416} (psi threshold 0.2)

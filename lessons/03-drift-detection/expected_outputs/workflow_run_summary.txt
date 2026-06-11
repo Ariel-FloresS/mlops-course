@@ -1,0 +1,41 @@
+WORKFLOW RUNS — the form-4 chain
+(Actions tab: 03-drift-detection daily at 07:00 UTC on main, on pull
+requests touching this lesson, or manually with a traffic_profile choice)
+
+RUN 1 — 03-drift-detection (traffic_profile: drifted, the default)
+
+  test ──► drift-check
+
+Job: test — green
+  uv run pytest -q ends with: 15 passed
+
+Job: drift-check — GREEN (despite drift!)
+  step "train":            metric gate passed: roc_auc >= 0.85
+  step "serve + replay":   sent 200 requests: 192 accepted, 8 rejected
+  step "drift-check" (continue-on-error) — shows an orange/red icon:
+    psi by feature: {'tenure_months': 4.8451, 'monthly_charges': 3.1281,
+                     'total_charges': 2.2862, 'support_tickets': 0.8683,
+                     'contract_type': 0.3224, 'payment_method': 0.3416}
+    report written to reports/drift_report.txt
+    ValueError: data drift detected: {...} (psi threshold 0.2)
+  step "Upload artifact":  drift-report (if: always())
+  step "dispatch":         runs ONLY because drift-check's outcome was
+                           'failure' — POSTs repository_dispatch
+                           event_type "drift-detected"
+
+RUN 2 — 03-retrain-on-drift (appears moments later, trigger: repository_dispatch)
+
+  retrain — green
+    echo: retraining triggered by repository_dispatch (source run <id>)
+    train log ends with: metric gate passed · artifacts written
+    artifact: churn-model-retrained
+
+PSI values are EXACT (deterministic data, deterministic model).
+
+CAVEATS TO RECOGNIZE
+- Run 2 only exists if 03-retrain-on-drift.yml is on the DEFAULT branch:
+  repository_dispatch workflows run from main. On this lesson's first PR
+  the dispatch is sent but nothing listens yet — merge, then rerun
+  (workflow_dispatch button) to see the full chain.
+- With traffic_profile: baseline, the drift-check step is green
+  (all psi < 0.2), the dispatch step is SKIPPED, and no retrain run appears.

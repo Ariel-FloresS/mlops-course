@@ -1,0 +1,5 @@
+built reference profiles from data/churn.csv (2000 rows)
+read 192 current records from expected_outputs/predictions_log_baseline.jsonl
+psi by feature: {'tenure_months': 0.0566, 'monthly_charges': 0.0472, 'total_charges': 0.0314, 'support_tickets': 0.0133, 'contract_type': 0.0072, 'payment_method': 0.0025}
+report written to reports/drift_report.txt
+no drift detected: all features below psi threshold 0.2
