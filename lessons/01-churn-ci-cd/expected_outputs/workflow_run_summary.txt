@@ -1,0 +1,33 @@
+WORKFLOW RUN — 01-churn-ci
+(Actions tab, after a push to main or a pull request touching this lesson)
+
+Run graph, left to right:
+
+  test ──► train ──► smoke-test
+
+Job: test — green
+  uv run pytest -q ends with: 11 passed
+
+Job: train — green
+  log contains, in order:
+    loaded 2000 rows from data/churn.csv
+    split into 1600 train rows and 400 test rows
+    training complete
+    test metrics: {'accuracy': 0.875, 'precision': 0.8407, 'recall': 0.748, 'roc_auc': 0.9222}
+    metric gate passed: roc_auc >= 0.85
+    artifacts written to artifacts/
+  final step: "Upload artifact" — churn-model
+
+Job: smoke-test — green
+  "Download artifact" — churn-model
+  curl GET  /health  prints: {"status":"ok"}
+  curl POST /predict prints: {"churn_probability":0.9966,"churn_label":1}
+
+Artifacts section (bottom of the run page):
+  churn-model — 2 files inside: model.joblib, metrics.json
+
+FAILURE MODE TO RECOGNIZE
+If the metric gate fails, job "train" turns red with
+  ValueError: metric gate failed: roc_auc=... is below minimum 0.85
+in its log, job "smoke-test" is shown as skipped,
+and NO artifact appears on the run page.

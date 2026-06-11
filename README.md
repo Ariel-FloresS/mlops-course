@@ -54,6 +54,7 @@ mlops-course/
 ├── shared/                   common utilities + synthetic data generators
 ├── .github/workflows/        GitHub Actions pipelines, added lesson by lesson
 ├── pyproject.toml            single uv-managed environment for the whole course
+├── uv.lock                   locked dependency versions — what makes expected outputs exact
 └── .python-version           pinned Python version
 ```
 
@@ -80,8 +81,8 @@ Lessons are generated incrementally, one at a time. Status legend: ✅ available
 | NN | Lesson | What you build | Status |
 |----|--------|----------------|--------|
 | 00 | [Setup & the ML CI/CD pipeline landscape](00-setup/README.md) | uv environment + a mental map of every way ML pipelines get built | ✅ |
-| 01 | Churn CI/CD: training + local deployment | layered training pipeline, FastAPI local serving, first GitHub Actions workflow with a metric quality gate | 🔜 |
-| 02 | Monitoring | service metrics + model metrics, structured logging, a simple dashboard | 🔒 |
+| 01 | [Churn CI/CD: training + local deployment](lessons/01-churn-ci-cd/README.md) | layered training pipeline, FastAPI local serving, first GitHub Actions workflow with a metric quality gate | ✅ |
+| 02 | Monitoring | service metrics + model metrics, structured logging, a simple dashboard | 🔜 |
 | 03 | Drift detection | data drift / concept drift detectors + automated retraining triggers | 🔒 |
 | 04 | Containerization + AWS Lambda | Docker → ECR → Lambda → API Gateway deployment pipeline | 🔒 |
 | 05 | Deployment strategies | blue-green, canary, and shadow patterns wired into the pipeline | 🔒 |

@@ -1,0 +1,29 @@
+HEALTH CHECK
+GET /health
+
+RESPONSE — 200 OK
+{"status":"ok"}
+
+
+REQUEST 1 — high-risk profile (new customer, month-to-month, electronic check, many tickets)
+POST /predict
+{"tenure_months": 2, "monthly_charges": 95.0, "total_charges": 190.0, "contract_type": "month_to_month", "payment_method": "electronic_check", "support_tickets": 4}
+
+RESPONSE 1 — 200 OK
+{"churn_probability":0.9966,"churn_label":1}
+
+
+REQUEST 2 — low-risk profile (long tenure, two-year contract, no tickets)
+POST /predict
+{"tenure_months": 60, "monthly_charges": 40.0, "total_charges": 2400.0, "contract_type": "two_year", "payment_method": "credit_card", "support_tickets": 0}
+
+RESPONSE 2 — 200 OK
+{"churn_probability":0.0029,"churn_label":0}
+
+
+REQUEST 3 — unknown category, rejected at the API boundary (model is never called)
+POST /predict
+{"tenure_months": 2, "monthly_charges": 95.0, "total_charges": 190.0, "contract_type": "weekly", "payment_method": "electronic_check", "support_tickets": 4}
+
+RESPONSE 3 — 422 Unprocessable Entity
+{"detail":[{"type":"literal_error","loc":["body","contract_type"],"msg":"Input should be 'month_to_month', 'one_year' or 'two_year'","input":"weekly","ctx":{"expected":"'month_to_month', 'one_year' or 'two_year'"}}]}

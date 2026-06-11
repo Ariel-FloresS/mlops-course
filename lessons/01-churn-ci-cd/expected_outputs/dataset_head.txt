@@ -1,0 +1,6 @@
+tenure_months,monthly_charges,total_charges,contract_type,payment_method,support_tickets,churn
+7,26.21,183.47,two_year,credit_card,3,0
+56,65.83,3686.48,one_year,bank_transfer,3,0
+48,32.9,1579.2,month_to_month,electronic_check,0,0
+32,35.23,1127.36,one_year,credit_card,1,0
+32,83.23,2663.36,month_to_month,credit_card,1,1

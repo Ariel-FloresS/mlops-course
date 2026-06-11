@@ -1,3 +1,5 @@
 # workflows
 
-GitHub Actions pipelines, added lesson by lesson. The first one lands with Lesson 01: `01-churn-ci.yml` (test → train → metric gate → publish artifact → smoke test).
+GitHub Actions pipelines, added lesson by lesson.
+
+- `01-churn-ci.yml` — Lesson 01: `test → train (metric gate, publishes churn-model artifact) → smoke-test`. Triggered by pushes to `main` and pull requests that touch the lesson, `shared/`, or the dependency files; also runnable manually via `workflow_dispatch`.

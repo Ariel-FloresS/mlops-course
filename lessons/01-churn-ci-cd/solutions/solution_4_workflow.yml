@@ -1,0 +1,63 @@
+name: 01-churn-ci
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "lessons/01-churn-ci-cd/**"
+      - "shared/**"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/workflows/01-churn-ci.yml"
+  pull_request:
+    paths:
+      - "lessons/01-churn-ci-cd/**"
+      - "shared/**"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/workflows/01-churn-ci.yml"
+  workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: lessons/01-churn-ci-cd
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync
+      - run: uv run pytest -q
+
+  train:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync
+      - run: uv run python -m src.pipeline.train_pipeline
+      - uses: actions/upload-artifact@v4
+        with:
+          name: churn-model
+          path: lessons/01-churn-ci-cd/artifacts/
+
+  smoke-test:
+    needs: train
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync
+      - uses: actions/download-artifact@v4
+        with:
+          name: churn-model
+          path: lessons/01-churn-ci-cd/artifacts/
+      - run: |
+          uv run python -m src.serving.run_server &
+          curl --fail --silent --retry 15 --retry-delay 1 --retry-all-errors http://127.0.0.1:8000/health
+          curl --fail --silent -X POST http://127.0.0.1:8000/predict \
+            -H "Content-Type: application/json" \
+            -d '{"tenure_months": 2, "monthly_charges": 95.0, "total_charges": 190.0, "contract_type": "month_to_month", "payment_method": "electronic_check", "support_tickets": 4}'
