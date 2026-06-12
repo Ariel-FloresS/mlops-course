@@ -1,0 +1,87 @@
+name: 05-progressive-deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "lessons/05-deployment-strategies/**"
+      - "shared/**"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/workflows/05-progressive-deploy.yml"
+  pull_request:
+    paths:
+      - "lessons/05-deployment-strategies/**"
+      - "shared/**"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/workflows/05-progressive-deploy.yml"
+  workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: lessons/05-deployment-strategies
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync
+      - run: uv run pytest -q
+
+  progressive-deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync
+      - name: train blue and green
+        run: |
+          uv run python -m src.pipeline.train_pipeline blue
+          uv run python -m src.pipeline.train_pipeline green
+      - name: start the model fleet
+        run: |
+          uv run python -m src.serving.run_model_server blue &
+          uv run python -m src.serving.run_model_server green &
+          curl --fail --silent --retry 15 --retry-delay 1 --retry-all-errors http://127.0.0.1:8001/health
+          curl --fail --silent --retry 15 --retry-delay 1 --retry-all-errors http://127.0.0.1:8002/health
+      - name: stage 1 — shadow green behind blue
+        run: |
+          uv run python -m src.serving.run_router shadow &
+          curl --fail --silent --retry 15 --retry-delay 1 --retry-all-errors http://127.0.0.1:8000/health
+          uv run python -m src.monitoring.traffic_replay
+          pkill -f "serving[.]run_router"
+      - name: stage 2 — promotion gate
+        run: uv run python -m src.pipeline.promotion_pipeline
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: promotion-report
+          path: lessons/05-deployment-strategies/reports/
+      - name: stage 3 — canary 20 percent
+        run: |
+          uv run python -m src.serving.run_router canary &
+          curl --fail --silent --retry 15 --retry-delay 1 --retry-all-errors http://127.0.0.1:8000/health
+          request_body='{"tenure_months": 2, "monthly_charges": 95.0, "total_charges": 190.0, "contract_type": "month_to_month", "payment_method": "electronic_check", "support_tickets": 4}'
+          assignment_headers=""
+          for request_number in $(seq 1 10); do
+            served_by=$(curl -fsS -D - -o /dev/null -X POST http://127.0.0.1:8000/predict -H "Content-Type: application/json" -d "$request_body" | grep -i x-served-by)
+            echo "request $request_number: $served_by"
+            assignment_headers="$assignment_headers$served_by"
+          done
+          green_count=$(echo "$assignment_headers" | grep -oi "green" | wc -l)
+          echo "green assignments in first 10 requests: $green_count"
+          test "$green_count" -eq 2
+          pkill -f "serving[.]run_router"
+      - name: stage 4 — full switch to green
+        run: |
+          uv run python -m src.serving.run_router green &
+          curl --fail --silent --retry 15 --retry-delay 1 --retry-all-errors http://127.0.0.1:8000/health
+          response=$(curl -fsS -D - -X POST http://127.0.0.1:8000/predict \
+            -H "Content-Type: application/json" \
+            -d '{"tenure_months": 2, "monthly_charges": 95.0, "total_charges": 190.0, "contract_type": "month_to_month", "payment_method": "electronic_check", "support_tickets": 4}')
+          echo "$response" | grep -i "x-served-by: green"
+          echo "$response" | grep -F '"churn_probability":0.9968'

@@ -8,7 +8,8 @@ Lessons are generated incrementally — see the roadmap in the root README for s
 - [`02-monitoring/`](02-monitoring/README.md) — structured logging, service + model metrics, dashboard report, threshold alerts, scheduled monitoring workflow.
 - [`03-drift-detection/`](03-drift-detection/README.md) — PSI from scratch, reference profiles, drift gate, and the drift → `repository_dispatch` → retraining chain (pipeline form 4).
 - [`04-docker-lambda/`](04-docker-lambda/README.md) — Lambda container image with the model baked in, RIE local validation, OIDC credentials, and the Docker → ECR → Lambda → API Gateway deploy pipeline.
+- [`05-deployment-strategies/`](05-deployment-strategies/README.md) — blue-green / canary / shadow routing service, shadow comparison of paired predictions, promotion gate, and the progressive-deploy pipeline (rollback by abstention).
 
-Next to land here: `05-deployment-strategies/`.
+Next to land here: `06-mlflow/`.
 
 Run `pytest` from inside a lesson folder (each lesson ships its own `pytest.ini`); lessons are independent and their `src/` packages are not importable across lessons.

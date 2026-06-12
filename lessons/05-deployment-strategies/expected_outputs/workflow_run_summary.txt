@@ -1,0 +1,45 @@
+WORKFLOW RUN — 05-progressive-deploy
+(Actions tab: push to main / pull request touching this lesson / manual)
+
+Run graph, left to right:
+
+  test ──► progressive-deploy
+
+Job: test — green
+  uv run pytest -q ends with: 16 passed
+
+Job: progressive-deploy — green, six steps in strict order:
+
+  "train blue and green"
+    blue:  test metrics ... 'roc_auc': 0.9222 ... artifacts written to artifacts/blue/
+    green: test metrics ... 'roc_auc': 0.9099 ... artifacts written to artifacts/green/
+
+  "start the model fleet"
+    both health endpoints answer {"status":"ok"}
+
+  "stage 1 — shadow green behind blue"
+    sent 200 requests: 192 accepted, 8 rejected
+    (users saw only blue; green scored the same 192 requests silently)
+
+  "stage 2 — promotion gate"
+    comparison metrics: {'comparison_count': 192, 'label_agreement_rate': 0.9896,
+      'disagreement_count': 2, 'mean_probability_delta': 0.0102,
+      'max_probability_delta': 0.0502}
+    promotion gate passed: green is safe to receive traffic
+
+  "stage 3 — canary 20 percent"
+    requests 5 and 8 show x-served-by: green, the rest blue
+    green assignments in first 10 requests: 2     ← asserted, deterministic (seed 13)
+
+  "stage 4 — full switch to green"
+    x-served-by: green
+    {"churn_probability":0.9968,"churn_label":1}  ← green's exact answer
+
+Artifacts section:
+  promotion-report — promotion_report.txt
+
+FAILURE MODE TO RECOGNIZE (the whole point of the design)
+If the promotion gate raises in stage 2, the job turns red THERE:
+stages 3 and 4 never execute, blue keeps 100% of traffic, and the
+promotion-report artifact (uploaded with if: always()) explains why.
+Rollback is not an action — it is the abstention from promotion.

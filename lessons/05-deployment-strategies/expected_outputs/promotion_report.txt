@@ -1,0 +1,13 @@
+SHADOW COMPARISON REPORT — blue (live) vs green (candidate)
+===========================================================
+
+  comparison_count           192
+  label_agreement_rate       0.9896
+  disagreement_count         2
+  mean_probability_delta     0.0102
+  max_probability_delta      0.0502
+
+promotion thresholds
+  min_label_agreement_rate   0.9
+  max_mean_probability_delta 0.1
+  min_comparison_count       150

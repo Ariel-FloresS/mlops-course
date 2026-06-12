@@ -85,8 +85,8 @@ Lessons are generated incrementally, one at a time. Status legend: ✅ available
 | 02 | [Monitoring](lessons/02-monitoring/README.md) | service metrics + model metrics, structured logging, dashboard, scheduled monitoring workflow | ✅ |
 | 03 | [Drift detection](lessons/03-drift-detection/README.md) | PSI from scratch, reference profiles, drift gate, `repository_dispatch` retraining trigger | ✅ |
 | 04 | [Containerization + AWS Lambda](lessons/04-docker-lambda/README.md) | Lambda container image, RIE local validation, OIDC, Docker → ECR → Lambda → API Gateway pipeline | ✅ |
-| 05 | Deployment strategies | blue-green, canary, and shadow patterns wired into the pipeline | 🔜 |
-| 06 | MLflow | model registry, versioning, reproducibility | 🔒 |
+| 05 | [Deployment strategies](lessons/05-deployment-strategies/README.md) | blue-green / canary / shadow router, shadow comparison, promotion gate, progressive-deploy pipeline | ✅ |
+| 06 | MLflow | model registry, versioning, reproducibility | 🔜 |
 | 07 | Embeddings from scratch | what embeddings are, training a simple one, validating it | 🔒 |
 | 08 | GANs | how GANs are built and how to deploy them | 🔒 |
 | 09 | Mini-LLM from scratch | tokenizer → attention → transformer block | 🔒 |
