@@ -1,0 +1,3 @@
+--- router in mode blue, high-risk request ---
+x-served-by: blue
+{"churn_probability":0.9966,"churn_label":1}

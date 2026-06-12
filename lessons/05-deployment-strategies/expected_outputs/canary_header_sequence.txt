@@ -1,0 +1,10 @@
+x-served-by: blue
+x-served-by: blue
+x-served-by: blue
+x-served-by: blue
+x-served-by: green
+x-served-by: blue
+x-served-by: blue
+x-served-by: green
+x-served-by: blue
+x-served-by: blue

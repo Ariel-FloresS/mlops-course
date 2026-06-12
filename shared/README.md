@@ -8,6 +8,7 @@ Common utilities and synthetic data generators used across lessons. Code here fo
 - `generate_traffic_dataset.py` — CLI entry for the canonical 200-row, seed-7 **traffic** dataset.
 - `churn_drifted_traffic.py` — `generate_drifted_traffic_frame(request_count, seed)`: same schema, shifted distributions (tenure 1–24, charges 60–140, 75% month-to-month, 60% electronic check, Poisson(3.0) tickets) — the deterministic "world changed" for drift detection.
 - `generate_drifted_traffic_dataset.py` — CLI entry for the canonical 200-row, seed-21 **drifted** dataset.
+- `generate_churn_dataset_v2.py` — CLI entry for the canonical 3,000-row **v2 training** dataset (the original 2,000 rows + 1,000 fresh rows, seed 99) — the "new labeled data arrived" set that trains the green candidate model.
 
 Run from the repo root:
 

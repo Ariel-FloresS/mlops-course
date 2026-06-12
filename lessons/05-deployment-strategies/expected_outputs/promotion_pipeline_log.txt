@@ -1,0 +1,4 @@
+read 192 shadow comparison records from expected_outputs/shadow_log_sample.jsonl
+comparison metrics: {'comparison_count': 192, 'label_agreement_rate': 0.9896, 'disagreement_count': 2, 'mean_probability_delta': 0.0102, 'max_probability_delta': 0.0502}
+report written to reports/promotion_report.txt
+promotion gate passed: green is safe to receive traffic

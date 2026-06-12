@@ -1,0 +1,46 @@
+name: 05-progressive-deploy
+
+# TODO (triggers): push to main + pull requests (paths-filtered to this
+#   lesson, shared/, dependency files, this workflow) + manual
+on:
+
+defaults:
+  run:
+    working-directory: lessons/05-deployment-strategies
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync
+      - run: uv run pytest -q
+
+  progressive-deploy:
+    # TODO: run only after `test` succeeds
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync
+      # TODO: train BOTH models (blue, then green)
+      # TODO: start both model servers in the background and curl both
+      #       health endpoints with retries (the fleet must be up before
+      #       any stage starts)
+      # TODO (stage 1 — shadow): start the router in shadow mode in the
+      #       background, wait for its health, replay the traffic, then
+      #       kill the router (pkill -f "serving[.]run_router")
+      # TODO (stage 2 — gate): run the promotion pipeline; if the gate
+      #       raises, the job goes red HERE and the later stages never
+      #       run — that is the rollback, by abstention
+      # TODO: upload lessons/05-deployment-strategies/reports/ as artifact
+      #       "promotion-report", even when the gate failed
+      # TODO (stage 3 — canary): start the router in canary mode, send 10
+      #       predict requests, print each X-Served-By header, count the
+      #       green assignments and assert the count equals 2 (the
+      #       splitter is seeded — the sequence is deterministic), then
+      #       kill the router
+      # TODO (stage 4 — switch): start the router in green mode and assert
+      #       the response carries X-Served-By: green AND the exact green
+      #       probability 0.9968

@@ -1,0 +1,10 @@
+read 192 shadow comparison records from expected_outputs/shadow_log_sample.jsonl
+comparison metrics: {'comparison_count': 192, 'label_agreement_rate': 0.9896, 'disagreement_count': 2, 'mean_probability_delta': 0.0102, 'max_probability_delta': 0.0502}
+report written to reports/promotion_report.txt
+Traceback (most recent call last):
+  File "<string>", line 12, in <module>
+  File "/home/user/mlops-course/lessons/05-deployment-strategies/src/pipeline/promotion_pipeline.py", line 26, in run_promotion_pipeline
+    enforce_promotion_gate(comparison_metrics, config.thresholds)
+  File "/home/user/mlops-course/lessons/05-deployment-strategies/src/deployment/promotion_gate.py", line 38, in enforce_promotion_gate
+    raise ValueError(f"promotion blocked: {blockers}")
+ValueError: promotion blocked: ['label_agreement_rate=0.9896 is below minimum 0.999']

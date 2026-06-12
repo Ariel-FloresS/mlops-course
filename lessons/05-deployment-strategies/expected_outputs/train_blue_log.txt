@@ -1,0 +1,6 @@
+loaded 2000 rows from data/churn.csv
+split into 1600 train rows and 400 test rows
+training complete
+test metrics: {'accuracy': 0.875, 'precision': 0.8407, 'recall': 0.748, 'roc_auc': 0.9222}
+metric gate passed: roc_auc >= 0.85
+artifacts written to artifacts/blue/
